@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dev-sop-engine": {
+      "command": "node",
+      "args": ["/Users/ldraney/dev-sop-engine/dist/mcp-server.js"]
+    }
+  }
+}
