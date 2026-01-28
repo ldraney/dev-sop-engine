@@ -53,5 +53,19 @@
 
   "subagents": {
     "inherit_rules": true
+  },
+
+  "skills": {
+    "workflow": {
+      "description": "Development workflow and Project Law philosophy",
+      "content_file": "./skills/workflow.md"
+    }
+  },
+
+  "agents": {
+    "dev-philosophy": {
+      "description": "Reviews work for philosophy compliance",
+      "prompt_file": "./agents/dev-philosophy.md"
+    }
   }
 }
