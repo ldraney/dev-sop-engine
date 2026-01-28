@@ -55,6 +55,13 @@
     "inherit_rules": true
   },
 
+  "mcp": {
+    "dev-sop-engine": {
+      "command": "node",
+      "args": ["./dist/mcp-server.js"]
+    }
+  },
+
   "skills": {
     "workflow": {
       "description": "Development workflow and Project Law philosophy",
