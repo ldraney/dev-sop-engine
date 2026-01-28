@@ -90,8 +90,10 @@ dev-sop-engine/                    # This repo
   // Agents: specialized sub-agents for Task tool
   "agents": {
     "<agent-name>": {
-      "description": "What this agent does",
-      "prompt_file": "./agents/<name>.md"
+      "description": "What this agent does",      // Required: shown in Task tool
+      "prompt_file": "./agents/<name>.md",        // Required: agent instructions
+      "tools": ["Read", "Glob", "Grep"],          // Optional: tool allowlist
+      "model": "sonnet"                           // Optional: sonnet|opus|haiku
     }
   }
 }

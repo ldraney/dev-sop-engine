@@ -65,11 +65,13 @@
   "agents": {
     "dev-philosophy": {
       "description": "Reviews work for philosophy compliance",
-      "prompt_file": "./agents/dev-philosophy.md"
+      "prompt_file": "./agents/dev-philosophy.md",
+      "tools": ["Read", "Glob", "Grep", "Bash"]
     },
     "sop-expert": {
       "description": "Helps configure dev-sop-engine: skills, agents, MCP servers, rules, and hooks",
-      "prompt_file": "./agents/sop-expert.md"
+      "prompt_file": "./agents/sop-expert.md",
+      "tools": ["Read", "Glob", "Grep", "Edit", "Write"]
     }
   }
 }
