@@ -2,6 +2,63 @@ import { writeFileSync, mkdirSync, cpSync, existsSync, chmodSync, readdirSync, r
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
+interface McpServerConfig {
+  command: string;
+  args?: string[];
+  env?: Record<string, string>;
+}
+
+interface McpJsonFile {
+  _managedBy?: string;
+  _managedServers?: string[];
+  mcpServers?: Record<string, McpServerConfig>;
+}
+
+/**
+ * Merge MCP server configurations with tracking of managed servers.
+ * - Servers in sop.json mcp section are "managed" by dev-sop-engine
+ * - Existing servers not in _managedServers are "manual" and preserved
+ * - Returns the merged config with updated tracking
+ */
+function mergeMcpConfig(
+  existingConfig: McpJsonFile | null,
+  sopMcpServers: Record<string, McpServerConfig>
+): McpJsonFile {
+  const sopServerNames = Object.keys(sopMcpServers);
+
+  // If no existing config, just create new one with all servers as managed
+  if (!existingConfig) {
+    return {
+      _managedBy: 'dev-sop-engine',
+      _managedServers: sopServerNames,
+      mcpServers: sopMcpServers,
+    };
+  }
+
+  const existingServers = existingConfig.mcpServers || {};
+  const previouslyManaged = existingConfig._managedServers || [];
+
+  // Identify manual servers (exist but were never managed by us)
+  const manualServers: Record<string, McpServerConfig> = {};
+  for (const [name, config] of Object.entries(existingServers)) {
+    if (!previouslyManaged.includes(name)) {
+      manualServers[name] = config;
+    }
+  }
+
+  // Merge: manual servers + new managed servers from sop.json
+  const mergedServers: Record<string, McpServerConfig> = {
+    ...manualServers,
+    ...sopMcpServers,
+  };
+
+  return {
+    _managedBy: 'dev-sop-engine',
+    _managedServers: sopServerNames,
+    mcpServers: mergedServers,
+  };
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function getEngineDir(): string {
@@ -142,6 +199,48 @@ export function generate(targetDir: string): string {
   }
   writeFileSync(join(claudeDir, 'settings.json'), JSON.stringify(settings, null, 2));
   output.push('  settings.json');
+
+  // Generate .mcp.json with merge logic
+  if (sopConfig.mcp && Object.keys(sopConfig.mcp).length > 0) {
+    const mcpJsonPath = join(targetDir, '.mcp.json');
+
+    // Read existing .mcp.json if it exists
+    let existingMcpConfig: McpJsonFile | null = null;
+    if (existsSync(mcpJsonPath)) {
+      try {
+        existingMcpConfig = JSON.parse(readFileSync(mcpJsonPath, 'utf-8'));
+      } catch {
+        // If parse fails, treat as no existing config
+        output.push('  .mcp.json (warning: existing file was invalid JSON, replacing)');
+      }
+    }
+
+    // Merge configs
+    const mergedConfig = mergeMcpConfig(existingMcpConfig, sopConfig.mcp);
+
+    // Report what happened
+    const sopServerNames = Object.keys(sopConfig.mcp);
+    const manualServerNames = Object.keys(mergedConfig.mcpServers || {}).filter(
+      name => !sopServerNames.includes(name)
+    );
+
+    if (existingMcpConfig) {
+      const previouslyManaged = existingMcpConfig._managedServers || [];
+      const removed = previouslyManaged.filter(name => !sopServerNames.includes(name));
+
+      if (manualServerNames.length > 0) {
+        output.push(`  .mcp.json (preserved manual: ${manualServerNames.join(', ')})`);
+      }
+      if (removed.length > 0) {
+        output.push(`  .mcp.json (removed managed: ${removed.join(', ')})`);
+      }
+      output.push(`  .mcp.json (managed: ${sopServerNames.join(', ')})`);
+    } else {
+      output.push(`  .mcp.json (created with: ${sopServerNames.join(', ')})`);
+    }
+
+    writeFileSync(mcpJsonPath, JSON.stringify(mergedConfig, null, 2) + '\n');
+  }
 
   output.push('\nDone. .claude/ is ready.');
   return output.join('\n');

@@ -1,8 +1,20 @@
 {
+  "_managedBy": "dev-sop-engine",
+  "_managedServers": [
+    "dev-sop-engine"
+  ],
   "mcpServers": {
+    "mcp-linkedin": {
+      "command": "npx",
+      "args": [
+        "@ldraney/mcp-linkedin"
+      ]
+    },
     "dev-sop-engine": {
       "command": "node",
-      "args": ["/Users/ldraney/dev-sop-engine/dist/mcp-server.js"]
+      "args": [
+        "./dist/mcp-server.js"
+      ]
     }
   }
 }

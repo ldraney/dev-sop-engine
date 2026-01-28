@@ -224,6 +224,94 @@ sop/loggers/X.sh         ->     .claude/hooks/loggers/X.sh
 
 **Never edit files in `.claude/`** - they are regenerated each time you run `npx dev-sop-engine .`
 
+## Managing .mcp.json
+
+The `.mcp.json` file may contain servers from multiple sources:
+- **Managed servers**: Defined in `sop/sop.json`, controlled by dev-sop-engine
+- **Manual servers**: Added by the user directly to `.mcp.json`
+
+### Merge Strategy
+
+When generating `.mcp.json`, we preserve manual servers and only update managed ones.
+
+### .mcp.json Structure with Tracking
+
+```json
+{
+  "_managedBy": "dev-sop-engine",
+  "_managedServers": ["playwright", "chrome-devtools"],
+  "mcpServers": {
+    "playwright": { ... },
+    "chrome-devtools": { ... },
+    "my-custom-server": { ... }
+  }
+}
+```
+
+- `_managedBy`: Identifies this file is partially managed
+- `_managedServers`: List of server names that dev-sop-engine controls
+- Servers NOT in `_managedServers` are preserved as-is
+
+### Merge Flow (Your Task as sop-expert)
+
+When a user asks to set up or update MCP servers:
+
+1. **Read existing `.mcp.json`** (if exists)
+   - Note which servers exist
+   - Check `_managedServers` to identify what we control
+
+2. **Read `sop/sop.json` mcp section**
+   - These are the servers we should manage
+
+3. **Present merge plan to user**:
+   ```
+   MCP Server Merge Plan:
+
+   KEEP (manual):
+   - github (not in sop.json, will preserve)
+
+   ADD (from sop.json):
+   - playwright (new)
+
+   UPDATE (from sop.json):
+   - chrome-devtools (config changed)
+
+   REMOVE (no longer in sop.json):
+   - old-server (was managed, now removed from sop.json)
+   ```
+
+4. **Write merged result** after user confirms
+
+### Example Merge Scenarios
+
+**Scenario A: Fresh project (no .mcp.json)**
+```
+sop.json mcp: { "playwright": {...} }
+Result: Create .mcp.json with playwright, mark as managed
+```
+
+**Scenario B: Existing manual .mcp.json**
+```
+Existing: { "mcpServers": { "github": {...} } }
+sop.json: { "playwright": {...} }
+Result: Keep github, add playwright to _managedServers
+```
+
+**Scenario C: Previously managed, sop.json changed**
+```
+Existing: { "_managedServers": ["old-server"], "mcpServers": { "old-server": {...}, "github": {...} } }
+sop.json: { "playwright": {...} }
+Result: Remove old-server, add playwright, keep github (manual)
+```
+
+### Checklist for MCP Merge
+
+- [ ] Read existing `.mcp.json` first
+- [ ] Identify manual vs managed servers
+- [ ] Present merge plan before writing
+- [ ] Never delete manual servers without explicit user request
+- [ ] Always update `_managedServers` list accurately
+
 ## Validation Checklist
 
 Before running the generator:
