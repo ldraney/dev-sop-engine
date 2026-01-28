@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, cpSync, existsSync, chmodSync, readdirSync } from 'fs';
+import { writeFileSync, mkdirSync, cpSync, existsSync, chmodSync, readdirSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -57,6 +57,37 @@ export function generate(targetDir: string): string {
   if (existsSync(sopConfigSrc)) {
     cpSync(sopConfigSrc, join(claudeDir, 'sop.json'));
     output.push('  sop.json');
+  }
+
+  // Load sop.json for skills/agents config
+  const sopConfigPath = join(sopSourceDir, 'sop.json');
+  const sopConfig = existsSync(sopConfigPath)
+    ? JSON.parse(readFileSync(sopConfigPath, 'utf-8'))
+    : {};
+
+  // Copy skills
+  if (sopConfig.skills) {
+    for (const [name, skill] of Object.entries(sopConfig.skills as Record<string, { content_file: string }>)) {
+      const skillDir = join(claudeDir, 'skills', name);
+      mkdirSync(skillDir, { recursive: true });
+      const srcPath = join(sopSourceDir, skill.content_file);
+      if (existsSync(srcPath)) {
+        cpSync(srcPath, join(skillDir, 'SKILL.md'));
+        output.push(`  skills/${name}/SKILL.md`);
+      }
+    }
+  }
+
+  // Copy agents
+  if (sopConfig.agents) {
+    mkdirSync(join(claudeDir, 'agents'), { recursive: true });
+    for (const [name, agent] of Object.entries(sopConfig.agents as Record<string, { prompt_file: string }>)) {
+      const srcPath = join(sopSourceDir, agent.prompt_file);
+      if (existsSync(srcPath)) {
+        cpSync(srcPath, join(claudeDir, 'agents', `${name}.md`));
+        output.push(`  agents/${name}.md`);
+      }
+    }
   }
 
   // Generate settings.json with all hook events
