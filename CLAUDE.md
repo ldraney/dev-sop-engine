@@ -40,47 +40,60 @@ dev-sop-engine/                    # This repo
 
 ```jsonc
 {
-  "$schema": "./node_modules/dev-sop-engine/sop.schema.json",
-  "version": "1.0.0",
+  "version": "1.0",
+  "enforcement": "hard",  // "hard" blocks on violations, "soft" warns only
 
-  "memory": {
-    "project_file": "./sop/CLAUDE.md"
-  },
-
-  "settings": {
-    "env": { "NODE_ENV": "development" },
-    "permissions": {
-      "allow": ["Bash(npm run *)"],
-      "deny": ["Read(.env)"]
-    },
-    "hooks": {
-      "PostToolUse": {
-        "Write|Edit": ["./sop/hooks/lint.sh"]
-      }
+  // Rules: validators that run on hook events
+  "rules": {
+    "<rule-name>": {
+      "description": "What this rule enforces",
+      "events": ["PreToolUse"],           // Hook events to trigger on
+      "matcher": "Write|Edit",            // Tool name regex (for tool events)
+      "condition": "optional-regex",      // Additional input filtering
+      "validator": "validators/script.sh", // Script to run
+      "enabled": true
     }
   },
 
+  // Logging: event logging configuration
+  "logging": {
+    "enabled": true,
+    "stderr": true,                       // Also log to stderr
+    "file": "~/.claude/logs/hooks.jsonl", // Log file path
+    "events": ["PreToolUse", "Stop"],     // Which events to log
+    "include_blocked_only": false,        // Only log blocked actions
+    "handler": "loggers/log-event.sh"     // Custom log handler
+  },
+
+  // Subagents: inheritance settings
+  "subagents": {
+    "inherit_rules": true                 // Apply rules to Task agents
+  },
+
+  // MCP: Model Context Protocol servers
   "mcp": {
-    "github": {
+    "<server-name>": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+      "args": ["-y", "@scope/package"],
+      "env": { "TOKEN": "${TOKEN}" }
     }
   },
 
+  // Skills: reusable context files invoked with /<name>
   "skills": {
-    "workflow": {
-      "description": "Project workflow",
-      "content_file": "./sop/skills/workflow.md"
+    "<skill-name>": {
+      "description": "What this skill provides",
+      "content_file": "./skills/<name>.md"
     }
   },
 
+  // Agents: specialized sub-agents for Task tool
   "agents": {
-    "reviewer": {
-      "description": "Code review specialist",
-      "model": "sonnet",
-      "tools": ["Read", "Grep", "Glob"],
-      "prompt_file": "./sop/agents/reviewer.md"
+    "<agent-name>": {
+      "description": "What this agent does",      // Required: shown in Task tool
+      "prompt_file": "./agents/<name>.md",        // Required: agent instructions
+      "tools": ["Read", "Glob", "Grep"],          // Optional: tool allowlist
+      "model": "sonnet"                           // Optional: sonnet|opus|haiku
     }
   }
 }

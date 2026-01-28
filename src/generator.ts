@@ -77,13 +77,35 @@ export function generate(targetDir: string): string {
     }
   }
 
-  // Copy agents
+  // Copy agents with YAML frontmatter injection
   if (sopConfig.agents) {
     mkdirSync(join(claudeDir, 'agents'), { recursive: true });
-    for (const [name, agent] of Object.entries(sopConfig.agents as Record<string, { prompt_file: string }>)) {
+
+    interface AgentConfig {
+      description: string;
+      prompt_file: string;
+      tools?: string[];
+      model?: string;
+    }
+
+    for (const [name, agent] of Object.entries(sopConfig.agents as Record<string, AgentConfig>)) {
       const srcPath = join(sopSourceDir, agent.prompt_file);
       if (existsSync(srcPath)) {
-        cpSync(srcPath, join(claudeDir, 'agents', `${name}.md`));
+        const content = readFileSync(srcPath, 'utf-8');
+
+        // Build YAML frontmatter (quote values to handle special chars like colons)
+        const frontmatter: string[] = ['---', `name: "${name}"`, `description: "${agent.description}"`];
+        if (agent.tools && agent.tools.length > 0) {
+          frontmatter.push(`tools: ${agent.tools.join(', ')}`);
+        }
+        if (agent.model) {
+          frontmatter.push(`model: ${agent.model}`);
+        }
+        frontmatter.push('---', '');
+
+        // Write agent file with frontmatter prepended
+        const outputContent = frontmatter.join('\n') + content;
+        writeFileSync(join(claudeDir, 'agents', `${name}.md`), outputContent);
         output.push(`  agents/${name}.md`);
       }
     }
