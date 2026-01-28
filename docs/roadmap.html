@@ -31,39 +31,45 @@
 
   <h1>Roadmap</h1>
 
-  <div class="milestone current">
-    <h3><span class="status current">Current</span> v0.1.0 - MVP</h3>
-    <p>Minimal working generator</p>
+  <div class="milestone" style="border-color: #28a745; background: #f0fff0;">
+    <h3><span class="status" style="background: #28a745; color: white;">Done</span> v0.1.0 - Core Generator</h3>
+    <p>Working generator with full feature coverage</p>
     <ul>
       <li>CLI: <code>npx dev-sop-engine .</code></li>
-      <li>Read <code>sop.json</code> from current directory</li>
-      <li>Generate <code>.claude/settings.json</code></li>
-      <li>Generate <code>.claude/CLAUDE.md</code> from memory config</li>
-      <li>Copy hooks from <code>sop/hooks/</code></li>
-      <li>Generate <code>.mcp.json</code></li>
-      <li>Dogfood on this repo</li>
+      <li>Generate <code>.claude/settings.json</code> with hook wiring for all 11 events</li>
+      <li>Rules with hook-based validators (PreToolUse matchers, conditions)</li>
+      <li>Structured event logging with custom handlers</li>
+      <li>Skills generation (content_file &rarr; SKILL.md)</li>
+      <li>Agents generation (prompt_file &rarr; YAML frontmatter)</li>
+      <li>Generate <code>.mcp.json</code> with smart merge (preserves manual servers)</li>
+      <li>MCP server mode (<code>sop_generate</code> tool)</li>
+      <li>Subagent rule inheritance</li>
+      <li>Dogfood on this repo (3 rules, 2 skills, 2 agents)</li>
+    </ul>
+  </div>
+
+  <div class="milestone current">
+    <h3><span class="status current">Current</span> v0.2.0 - Adoptability</h3>
+    <p>Make it usable by someone other than the author</p>
+    <ul>
+      <li>Add README.md</li>
+      <li>Align documentation with actual implementation</li>
+      <li>CLI: <code>npx dev-sop-engine init</code> &mdash; scaffold starter config</li>
+      <li>Basic input validation and error messages for malformed sop.json</li>
+      <li>Publish to npm</li>
+      <li>Set version to 0.x (currently incorrectly at 1.0.0)</li>
     </ul>
   </div>
 
   <div class="milestone">
-    <h3><span class="status planned">Planned</span> v0.2.0 - Skills & Agents</h3>
-    <p>Full Claude feature support</p>
+    <h3><span class="status planned">Planned</span> v0.3.0 - Reliability</h3>
+    <p>Testing and validation</p>
     <ul>
-      <li>Generate <code>.claude/skills/</code> from skills config</li>
-      <li>Generate <code>.claude/agents/</code> from agents config</li>
-      <li>Support inline content and file references</li>
       <li>JSON Schema for <code>sop.json</code> validation</li>
-    </ul>
-  </div>
-
-  <div class="milestone">
-    <h3><span class="status planned">Planned</span> v0.3.0 - Init & DX</h3>
-    <p>Developer experience improvements</p>
-    <ul>
-      <li>CLI: <code>npx dev-sop-engine init</code> - scaffold starter config</li>
-      <li>CLI: <code>npx dev-sop-engine validate</code> - check sop.json</li>
+      <li>CLI: <code>npx dev-sop-engine validate</code> &mdash; check sop.json</li>
+      <li>Unit tests for generator logic</li>
+      <li>GitHub Actions CI</li>
       <li>Better error messages with line numbers</li>
-      <li>TypeScript types published for sop.json</li>
     </ul>
   </div>
 
@@ -71,10 +77,10 @@
     <h3><span class="status future">Future</span> v0.4.0 - Advanced Features</h3>
     <p>Power user features</p>
     <ul>
-      <li>CLI: <code>npx dev-sop-engine diff</code> - preview changes</li>
-      <li>CLI: <code>npx dev-sop-engine watch</code> - auto-regenerate</li>
-      <li>Generate from remote sop.json URL</li>
-      <li>Scaffold templates (--scaffold flag)</li>
+      <li>CLI: <code>npx dev-sop-engine diff</code> &mdash; preview changes before generating</li>
+      <li>CLI: <code>npx dev-sop-engine watch</code> &mdash; auto-regenerate on sop/ changes</li>
+      <li>Shareable config presets (import/extend another sop.json)</li>
+      <li>Dry-run mode</li>
     </ul>
   </div>
 
@@ -84,8 +90,8 @@
     <ul>
       <li>Stable sop.json schema (no breaking changes)</li>
       <li>Comprehensive documentation</li>
-      <li>CI/CD examples</li>
-      <li>Published to npm</li>
+      <li>CI/CD pipeline examples for teams</li>
+      <li>TypeScript types published for sop.json</li>
     </ul>
   </div>
 
@@ -93,7 +99,6 @@
   <ul>
     <li>GUI / web interface</li>
     <li>Plugin system (reconsider post-1.0)</li>
-    <li>MCP server mode (CLI-only for now)</li>
     <li>Cloud sync / remote config management</li>
   </ul>
 

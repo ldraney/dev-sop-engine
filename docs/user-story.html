@@ -115,7 +115,30 @@ sop.json is valid.
     <li>Plugin system</li>
     <li>Watch mode / auto-regenerate</li>
     <li>Diff / preview mode</li>
-    <li>MCP server mode (generate-only CLI for v1)</li>
+    <li>Cloud sync / remote config management</li>
+  </ul>
+
+  <h2>Already Implemented</h2>
+  <ul>
+    <li>CLI: <code>npx dev-sop-engine .</code> (generate from sop.json)</li>
+    <li>MCP server mode (<code>sop_generate</code> tool)</li>
+    <li>Rules with hook-based validators</li>
+    <li>Structured event logging</li>
+    <li>Skills generation</li>
+    <li>Agents generation with YAML frontmatter</li>
+    <li><code>.mcp.json</code> merge (preserves manual servers)</li>
+    <li>Subagent rule inheritance</li>
+    <li>Dogfooding (this repo uses itself)</li>
+  </ul>
+
+  <h2>Not Yet Implemented</h2>
+  <ul>
+    <li><code>init</code> command (scaffold starter config)</li>
+    <li><code>validate</code> command (check sop.json)</li>
+    <li>JSON Schema for sop.json</li>
+    <li>Input validation / error handling</li>
+    <li>Tests and CI</li>
+    <li>npm publishing</li>
   </ul>
 
 </body>

@@ -57,9 +57,9 @@ npx dev-sop-engine .
   <h2>Quick Start</h2>
   <pre>
 # In your project
-npx dev-sop-engine init    # Create starter sop.json + sop/
-npx dev-sop-engine .       # Generate .claude/ from sop.json
+npx dev-sop-engine .       # Generate .claude/ + .mcp.json from sop/sop.json
   </pre>
+  <p><em>Planned: <code>npx dev-sop-engine init</code> to scaffold a starter config.</em></p>
 
   <div class="features">
     <div class="feature">
@@ -76,9 +76,12 @@ npx dev-sop-engine .       # Generate .claude/ from sop.json
     </div>
     <div class="feature">
       <h3>MCP Servers</h3>
-      <p>External tools via Model Context Protocol. GitHub, databases, APIs—all configured in one place.</p>
+      <p>External tools via Model Context Protocol. GitHub, databases, APIs—all configured in one place. Smart merge preserves manual entries.</p>
     </div>
   </div>
+
+  <h2>Also Runs as MCP Server</h2>
+  <p>The engine exposes <code>sop_generate</code> as an MCP tool, so any Claude Code session can generate <code>.claude/</code> for a target directory without the CLI.</p>
 
   <h2>Example: sop.json</h2>
   <pre>
