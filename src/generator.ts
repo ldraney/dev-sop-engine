@@ -17,9 +17,8 @@ export function generate(targetDir: string): string {
   output.push(`Generating .claude/ in ${targetDir}`);
 
   // Create .claude directory structure
-  mkdirSync(join(claudeDir, 'hooks'), { recursive: true });
-  mkdirSync(join(claudeDir, 'validators'), { recursive: true });
-  mkdirSync(join(claudeDir, 'loggers'), { recursive: true });
+  mkdirSync(join(claudeDir, 'hooks', 'validators'), { recursive: true });
+  mkdirSync(join(claudeDir, 'hooks', 'loggers'), { recursive: true });
 
   // Copy engine.sh
   const engineSrc = join(sopSourceDir, 'hooks', 'engine.sh');
@@ -33,10 +32,10 @@ export function generate(targetDir: string): string {
   if (existsSync(validatorsDir)) {
     for (const file of readdirSync(validatorsDir)) {
       const src = join(validatorsDir, file);
-      const dest = join(claudeDir, 'validators', file);
+      const dest = join(claudeDir, 'hooks', 'validators', file);
       cpSync(src, dest);
       chmodSync(dest, 0o755);
-      output.push(`  validators/${file}`);
+      output.push(`  hooks/validators/${file}`);
     }
   }
 
@@ -45,10 +44,10 @@ export function generate(targetDir: string): string {
   if (existsSync(loggersDir)) {
     for (const file of readdirSync(loggersDir)) {
       const src = join(loggersDir, file);
-      const dest = join(claudeDir, 'loggers', file);
+      const dest = join(claudeDir, 'hooks', 'loggers', file);
       cpSync(src, dest);
       chmodSync(dest, 0o755);
-      output.push(`  loggers/${file}`);
+      output.push(`  hooks/loggers/${file}`);
     }
   }
 
