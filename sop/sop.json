@@ -59,6 +59,10 @@
     "workflow": {
       "description": "Development workflow and Project Law philosophy",
       "content_file": "./skills/workflow.md"
+    },
+    "mcpb-release": {
+      "description": "MCP prerelease QA workflow for Claude Desktop testing",
+      "content_file": "./skills/mcpb-release.md"
     }
   },
 
