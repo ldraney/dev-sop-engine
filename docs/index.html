@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dev-sop-engine - Configuration-driven Claude Code setup</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    h1, h2, h3 { margin-top: 2rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 2px; }
+    .nav { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
+    .nav a { margin-right: 1rem; }
+    .hero { text-align: center; padding: 2rem 0; }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.2rem; color: #666; }
+    .install { background: #1a1a2e; color: #eee; padding: 1rem; border-radius: 4px; font-family: monospace; text-align: center; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .feature { padding: 1rem; border: 1px solid #ddd; border-radius: 4px; }
+    .feature h3 { margin-top: 0; }
+    .cta { text-align: center; margin: 2rem 0; }
+    .cta a { background: #0066cc; color: white; padding: 0.75rem 1.5rem; border-radius: 4px; text-decoration: none; }
+    .cta a:hover { background: #0055aa; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html"><strong>Home</strong></a>
+    <a href="architecture.html">Architecture</a>
+    <a href="user-story.html">User Stories</a>
+    <a href="roadmap.html">Roadmap</a>
+  </nav>
+
+  <div class="hero">
+    <h1>dev-sop-engine</h1>
+    <p>Configuration-driven Claude Code setup.<br>Define once in JSON. Generate everywhere.</p>
+  </div>
+
+  <div class="install">
+    npx dev-sop-engine .
+  </div>
+
+  <h2>The Problem</h2>
+  <p>Claude Code configuration is scattered across multiple files: <code>settings.json</code>, <code>CLAUDE.md</code>, skill files, agent prompts, hook scripts, MCP configs. When you want to share or replicate a setup, you're copying a dozen files and hoping nothing breaks.</p>
+
+  <h2>The Solution</h2>
+  <p>Define everything in one <code>sop.json</code> file. Run the generator. Get a complete, portable <code>.claude/</code> directory.</p>
+
+  <pre>
+sop.json (your config)
+    ↓
+npx dev-sop-engine .
+    ↓
+.claude/ + .mcp.json (generated)
+  </pre>
+
+  <h2>Quick Start</h2>
+  <pre>
+# In your project
+npx dev-sop-engine init    # Create starter sop.json + sop/
+npx dev-sop-engine .       # Generate .claude/ from sop.json
+  </pre>
+
+  <div class="features">
+    <div class="feature">
+      <h3>Skills</h3>
+      <p>Reusable context files invoked with <code>/skill-name</code>. Define workflows, templates, guidelines.</p>
+    </div>
+    <div class="feature">
+      <h3>Agents</h3>
+      <p>Specialized sub-agents for the Task tool. Auto-discovered with proper YAML frontmatter.</p>
+    </div>
+    <div class="feature">
+      <h3>Rules</h3>
+      <p>Hook-based validators. Block commits to main, require issue numbers, enforce lint on save.</p>
+    </div>
+    <div class="feature">
+      <h3>MCP Servers</h3>
+      <p>External tools via Model Context Protocol. GitHub, databases, APIs—all configured in one place.</p>
+    </div>
+  </div>
+
+  <h2>Example: sop.json</h2>
+  <pre>
+{
+  "version": "1.0",
+  "enforcement": "hard",
+
+  "rules": {
+    "no-main-commit": {
+      "description": "Block commits on main branch",
+      "events": ["PreToolUse"],
+      "matcher": "Bash",
+      "condition": "git.*commit",
+      "validator": "validators/no-main-commit.sh"
+    }
+  },
+
+  "skills": {
+    "workflow": {
+      "description": "Development workflow guidelines",
+      "content_file": "./skills/workflow.md"
+    }
+  },
+
+  "agents": {
+    "code-reviewer": {
+      "description": "Reviews code for quality and security",
+      "prompt_file": "./agents/reviewer.md",
+      "tools": ["Read", "Glob", "Grep"]
+    }
+  }
+}
+  </pre>
+
+  <h2>Philosophy</h2>
+  <p><strong>Project Law</strong>: Codify your team's standards into enforceable rules. No more "we should remember to..." — the engine remembers for you.</p>
+  <ul>
+    <li><strong>Issue-first development</strong> — Require GitHub issues before code changes</li>
+    <li><strong>Branch protection</strong> — Block commits on main, require feature branches</li>
+    <li><strong>Assumption validation</strong> — Spikes before implementation for unknowns</li>
+    <li><strong>Small PRs</strong> — Keep changes focused and reviewable</li>
+  </ul>
+
+  <h2>Source vs Generated</h2>
+  <pre>
+project/
+├── sop.json              # Source of truth (edit this)
+├── sop/                  # Your source files
+│   ├── skills/
+│   ├── agents/
+│   └── validators/
+│
+├── .claude/              # GENERATED (don't edit)
+│   ├── settings.json
+│   ├── skills/
+│   ├── agents/
+│   └── hooks/
+│
+└── .mcp.json             # GENERATED
+  </pre>
+
+  <div class="cta">
+    <a href="https://github.com/ldraney/dev-sop-engine">View on GitHub</a>
+  </div>
+
+  <h2>Learn More</h2>
+  <ul>
+    <li><a href="architecture.html">Architecture</a> — How it works under the hood</li>
+    <li><a href="user-story.html">User Stories</a> — Who this is for</li>
+    <li><a href="roadmap.html">Roadmap</a> — What's coming next</li>
+  </ul>
+
+</body>
+</html>
