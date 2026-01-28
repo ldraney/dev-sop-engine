@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dev-sop-engine - User Stories</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    h1, h2, h3 { margin-top: 2rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 2px; }
+    .nav { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
+    .nav a { margin-right: 1rem; }
+    .story { border-left: 3px solid #007acc; padding-left: 1rem; margin: 1.5rem 0; }
+    .story h3 { margin-top: 0; color: #007acc; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="architecture.html">Architecture</a>
+    <a href="user-story.html"><strong>User Stories</strong></a>
+    <a href="roadmap.html">Roadmap</a>
+  </nav>
+
+  <h1>User Stories</h1>
+
+  <h2>Primary Personas</h2>
+
+  <h3>1. Solo Developer</h3>
+  <p>Wants to standardize their Claude workflow across projects without manually copying config files.</p>
+
+  <h3>2. Team Lead</h3>
+  <p>Wants to enforce consistent Claude configuration across team members and projects.</p>
+
+  <h3>3. Open Source Maintainer</h3>
+  <p>Wants to include Claude configuration in their repo so contributors have a consistent experience.</p>
+
+  <h2>User Stories</h2>
+
+  <div class="story">
+    <h3>New Project Setup</h3>
+    <p><strong>As a</strong> developer starting a new project</p>
+    <p><strong>I want to</strong> run <code>npx dev-sop-engine init</code></p>
+    <p><strong>So that</strong> I get a starter <code>sop.json</code> and <code>sop/</code> scaffold to customize</p>
+    <pre>
+$ npx dev-sop-engine init
+Created sop.json
+Created sop/CLAUDE.md
+Created sop/hooks/.gitkeep
+Created sop/skills/.gitkeep
+
+Run 'npx dev-sop-engine .' to generate .claude/
+    </pre>
+  </div>
+
+  <div class="story">
+    <h3>Generate Configuration</h3>
+    <p><strong>As a</strong> developer with an existing <code>sop.json</code></p>
+    <p><strong>I want to</strong> run <code>npx dev-sop-engine .</code></p>
+    <p><strong>So that</strong> I get an updated <code>.claude/</code> and <code>.mcp.json</code></p>
+    <pre>
+$ npx dev-sop-engine .
+Reading sop.json...
+Generated .claude/settings.json
+Generated .claude/CLAUDE.md
+Copied .claude/hooks/lint.sh
+Generated .claude/skills/workflow/SKILL.md
+Generated .mcp.json
+
+Done. 5 files written.
+    </pre>
+  </div>
+
+  <div class="story">
+    <h3>Share Configuration with Team</h3>
+    <p><strong>As a</strong> team lead</p>
+    <p><strong>I want to</strong> commit <code>sop.json</code> and <code>sop/</code> to our repo</p>
+    <p><strong>So that</strong> team members can run <code>npx dev-sop-engine .</code> and get identical Claude configuration</p>
+  </div>
+
+  <div class="story">
+    <h3>Inject into Existing Project</h3>
+    <p><strong>As a</strong> developer</p>
+    <p><strong>I want to</strong> generate <code>.claude/</code> in a project that doesn't use dev-sop-engine</p>
+    <p><strong>So that</strong> I can use my standard Claude configuration anywhere</p>
+    <pre>
+$ cd ~/my-other-project
+$ npx dev-sop-engine ~/my-sop-config
+Generated .claude/ from ~/my-sop-config/sop.json
+    </pre>
+  </div>
+
+  <div class="story">
+    <h3>Portable Output for Contributors</h3>
+    <p><strong>As an</strong> open source maintainer</p>
+    <p><strong>I want to</strong> commit the generated <code>.claude/</code> directory</p>
+    <p><strong>So that</strong> contributors don't need dev-sop-engine installed</p>
+  </div>
+
+  <div class="story">
+    <h3>Validation</h3>
+    <p><strong>As a</strong> developer</p>
+    <p><strong>I want to</strong> validate my <code>sop.json</code> before generating</p>
+    <p><strong>So that</strong> I catch configuration errors early</p>
+    <pre>
+$ npx dev-sop-engine validate
+sop.json is valid.
+    </pre>
+  </div>
+
+  <h2>Non-Goals (v1)</h2>
+  <ul>
+    <li>GUI or web interface</li>
+    <li>Plugin system</li>
+    <li>Watch mode / auto-regenerate</li>
+    <li>Diff / preview mode</li>
+    <li>MCP server mode (generate-only CLI for v1)</li>
+  </ul>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dev-sop-engine - Roadmap</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    h1, h2, h3 { margin-top: 2rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 2px; }
+    .nav { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
+    .nav a { margin-right: 1rem; }
+    .milestone { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    .milestone h3 { margin-top: 0; }
+    .milestone.current { border-color: #007acc; background: #f0f7ff; }
+    .status { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; }
+    .status.planned { background: #f4f4f4; }
+    .status.current { background: #007acc; color: white; }
+    .status.future { background: #e0e0e0; }
+    ul { margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="architecture.html">Architecture</a>
+    <a href="user-story.html">User Stories</a>
+    <a href="roadmap.html"><strong>Roadmap</strong></a>
+  </nav>
+
+  <h1>Roadmap</h1>
+
+  <div class="milestone current">
+    <h3><span class="status current">Current</span> v0.1.0 - MVP</h3>
+    <p>Minimal working generator</p>
+    <ul>
+      <li>CLI: <code>npx dev-sop-engine .</code></li>
+      <li>Read <code>sop.json</code> from current directory</li>
+      <li>Generate <code>.claude/settings.json</code></li>
+      <li>Generate <code>.claude/CLAUDE.md</code> from memory config</li>
+      <li>Copy hooks from <code>sop/hooks/</code></li>
+      <li>Generate <code>.mcp.json</code></li>
+      <li>Dogfood on this repo</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3><span class="status planned">Planned</span> v0.2.0 - Skills & Agents</h3>
+    <p>Full Claude feature support</p>
+    <ul>
+      <li>Generate <code>.claude/skills/</code> from skills config</li>
+      <li>Generate <code>.claude/agents/</code> from agents config</li>
+      <li>Support inline content and file references</li>
+      <li>JSON Schema for <code>sop.json</code> validation</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3><span class="status planned">Planned</span> v0.3.0 - Init & DX</h3>
+    <p>Developer experience improvements</p>
+    <ul>
+      <li>CLI: <code>npx dev-sop-engine init</code> - scaffold starter config</li>
+      <li>CLI: <code>npx dev-sop-engine validate</code> - check sop.json</li>
+      <li>Better error messages with line numbers</li>
+      <li>TypeScript types published for sop.json</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3><span class="status future">Future</span> v0.4.0 - Advanced Features</h3>
+    <p>Power user features</p>
+    <ul>
+      <li>CLI: <code>npx dev-sop-engine diff</code> - preview changes</li>
+      <li>CLI: <code>npx dev-sop-engine watch</code> - auto-regenerate</li>
+      <li>Generate from remote sop.json URL</li>
+      <li>Scaffold templates (--scaffold flag)</li>
+    </ul>
+  </div>
+
+  <div class="milestone">
+    <h3><span class="status future">Future</span> v1.0.0 - Stable</h3>
+    <p>Production ready</p>
+    <ul>
+      <li>Stable sop.json schema (no breaking changes)</li>
+      <li>Comprehensive documentation</li>
+      <li>CI/CD examples</li>
+      <li>Published to npm</li>
+    </ul>
+  </div>
+
+  <h2>Out of Scope</h2>
+  <ul>
+    <li>GUI / web interface</li>
+    <li>Plugin system (reconsider post-1.0)</li>
+    <li>MCP server mode (CLI-only for now)</li>
+    <li>Cloud sync / remote config management</li>
+  </ul>
+
+  <h2>GitHub Issues</h2>
+  <p>Track progress at: <a href="https://github.com/ldraney/dev-sop-engine/issues">github.com/ldraney/dev-sop-engine/issues</a></p>
+
+</body>
+</html>

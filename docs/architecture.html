@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dev-sop-engine - Architecture</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    h1, h2, h3 { margin-top: 2rem; }
+    pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; border-radius: 4px; }
+    code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 2px; }
+    .nav { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd; }
+    .nav a { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="architecture.html"><strong>Architecture</strong></a>
+    <a href="user-story.html">User Stories</a>
+    <a href="roadmap.html">Roadmap</a>
+  </nav>
+
+  <h1>Architecture</h1>
+
+  <h2>Overview</h2>
+  <p>dev-sop-engine is a CLI that generates a portable <code>.claude/</code> directory and <code>.mcp.json</code> from a single <code>sop.json</code> configuration file.</p>
+
+  <h2>Core Concept</h2>
+  <pre>
+sop.json (source of truth)
+    ↓
+npx dev-sop-engine .
+    ↓
+.claude/ + .mcp.json (generated, portable)
+  </pre>
+
+  <h2>Repository Structure</h2>
+  <pre>
+dev-sop-engine/                    # The engine itself
+├── CLAUDE.md
+├── package.json
+├── src/
+│   ├── index.ts                   # CLI entry
+│   ├── generator/
+│   │   ├── index.ts               # Main generate logic
+│   │   ├── settings.ts            # Generates settings.json
+│   │   ├── skills.ts              # Generates skills/
+│   │   ├── agents.ts              # Generates agents/
+│   │   ├── hooks.ts               # Copies hooks
+│   │   └── mcp.ts                 # Generates .mcp.json
+│   └── schema/
+│       └── sop.schema.json        # JSON Schema for validation
+│
+├── sop.json                       # Dogfood config
+├── sop/                           # Dogfood source files
+└── .claude/                       # Generated (dogfood)
+  </pre>
+
+  <h2>Source vs Generated</h2>
+  <p>Users maintain source files in <code>sop/</code>. The generator copies everything into <code>.claude/</code> to create a self-contained, portable output.</p>
+  <pre>
+project/
+├── sop.json                       # Source of truth
+├── sop/                           # User's source files
+│   ├── CLAUDE.md
+│   ├── hooks/
+│   │   └── lint.sh
+│   └── skills/
+│       └── workflow.md
+│
+├── .claude/                       # GENERATED (portable)
+│   ├── settings.json
+│   ├── CLAUDE.md                  # Copied
+│   ├── hooks/
+│   │   └── lint.sh                # Copied
+│   └── skills/
+│       └── workflow/
+│           └── SKILL.md           # Copied
+│
+└── .mcp.json                      # GENERATED
+  </pre>
+
+  <h2>sop.json Schema</h2>
+  <p>The configuration file has these top-level sections:</p>
+  <ul>
+    <li><strong>memory</strong> - CLAUDE.md content (inline or file reference)</li>
+    <li><strong>settings</strong> - env, permissions, hooks</li>
+    <li><strong>mcp</strong> - MCP server definitions</li>
+    <li><strong>skills</strong> - Skill definitions (templates, workflows)</li>
+    <li><strong>agents</strong> - Agent definitions (isolated workers)</li>
+  </ul>
+  <pre>
+{
+  "$schema": "./node_modules/dev-sop-engine/sop.schema.json",
+  "version": "1.0.0",
+
+  "memory": {
+    "project_file": "./sop/CLAUDE.md"
+  },
+
+  "settings": {
+    "env": { "NODE_ENV": "development" },
+    "permissions": {
+      "allow": ["Bash(npm run *)"],
+      "deny": ["Read(.env)"]
+    },
+    "hooks": {
+      "PostToolUse": {
+        "Write|Edit": ["./sop/hooks/lint.sh"]
+      }
+    }
+  },
+
+  "mcp": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+    }
+  },
+
+  "skills": {
+    "workflow": {
+      "description": "Project workflow",
+      "content_file": "./sop/skills/workflow.md"
+    }
+  },
+
+  "agents": {
+    "reviewer": {
+      "description": "Code review specialist",
+      "model": "sonnet",
+      "tools": ["Read", "Grep", "Glob"],
+      "prompt_file": "./sop/agents/reviewer.md"
+    }
+  }
+}
+  </pre>
+
+  <h2>Design Decisions</h2>
+  <ul>
+    <li><strong>Copy, don't reference</strong> - Generated <code>.claude/</code> is fully portable and self-contained</li>
+    <li><strong>File references preferred</strong> - Keep <code>sop.json</code> readable; content lives in <code>sop/</code></li>
+    <li><strong>Gitignore .claude/</strong> - Regenerate from <code>sop.json</code>; commit only if needed for teams without the engine</li>
+    <li><strong>JSON Schema + TypeScript</strong> - Schema for editor autocomplete, TypeScript for engine internals</li>
+    <li><strong>No plugins yet</strong> - Ship core first, add extensibility when patterns emerge</li>
+  </ul>
+
+</body>
+</html>
