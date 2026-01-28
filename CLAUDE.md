@@ -1,45 +1,119 @@
 # dev-sop-engine
 
-MCP server that generates `.claude/` directory from `sop.json`.
+CLI that generates `.claude/` and `.mcp.json` from `sop.json`.
 
 ## What This Does
 
-Users define their process rules in `sop.json`. This tool generates the `.claude/` hook infrastructure.
+Users define their Claude configuration in `sop.json`. This tool generates the complete `.claude/` directory structure.
 
 ```bash
-npx dev-sop-engine generate   # Generate .claude/ from sop.json
-npx dev-sop-engine status     # Check if .claude/ matches sop.json
+npx dev-sop-engine init        # Create starter sop.json + sop/ scaffold
+npx dev-sop-engine .           # Generate .claude/ and .mcp.json from sop.json
 ```
 
 ## Architecture
 
 ```
-dev-sop-engine/
+dev-sop-engine/                    # This repo
+├── CLAUDE.md
+├── package.json
 ├── src/
-│   ├── index.ts              # MCP server entry (stdio)
-│   ├── cli.ts                # CLI entry
-│   └── generator/            # Generation logic
-├── templates/                # Shell scripts copied to .claude/
-│   ├── engine.sh             # Routes events to validators
-│   ├── validators/           # Rule implementations
-│   └── loggers/              # Logging scripts
-└── package.json
+│   ├── index.ts                   # CLI entry
+│   ├── generator/
+│   │   ├── index.ts               # Main generate logic
+│   │   ├── settings.ts            # Generates settings.json
+│   │   ├── skills.ts              # Generates skills/
+│   │   ├── agents.ts              # Generates agents/
+│   │   ├── hooks.ts               # Copies hooks
+│   │   └── mcp.ts                 # Generates .mcp.json
+│   └── schema/
+│       └── sop.schema.json        # JSON Schema for validation
+│
+├── sop.json                       # Dogfood: our own config
+├── sop/                           # Dogfood: our source files
+│   └── ...
+│
+└── .claude/                       # Generated output (dogfood)
 ```
 
-## How Rules Work
+## sop.json Schema
 
-1. **This repo** ships validator templates in `templates/validators/`
-2. **Users** create `sop.json` with `enabled: true/false` for each rule
-3. **Generator** copies enabled validators to `.claude/`
-4. **engine.sh** reads `sop.json` at runtime and routes to validators
+```jsonc
+{
+  "$schema": "./node_modules/dev-sop-engine/sop.schema.json",
+  "version": "1.0.0",
 
-## Adding a New Rule
+  "memory": {
+    "project_file": "./sop/CLAUDE.md"
+  },
 
-1. Create `templates/validators/my-rule.sh`
-2. Document the rule schema
-3. Open PR
+  "settings": {
+    "env": { "NODE_ENV": "development" },
+    "permissions": {
+      "allow": ["Bash(npm run *)"],
+      "deny": ["Read(.env)"]
+    },
+    "hooks": {
+      "PostToolUse": {
+        "Write|Edit": ["./sop/hooks/lint.sh"]
+      }
+    }
+  },
 
-## MCP Tools
+  "mcp": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+    }
+  },
 
-- `sop_generate` - Create/update .claude/ from sop.json
-- `sop_status` - Check sync status via hash comparison
+  "skills": {
+    "workflow": {
+      "description": "Project workflow",
+      "content_file": "./sop/skills/workflow.md"
+    }
+  },
+
+  "agents": {
+    "reviewer": {
+      "description": "Code review specialist",
+      "model": "sonnet",
+      "tools": ["Read", "Grep", "Glob"],
+      "prompt_file": "./sop/agents/reviewer.md"
+    }
+  }
+}
+```
+
+## Source vs Generated
+
+```
+project/
+├── sop.json                       # Source of truth
+├── sop/                           # Your source files
+│   ├── CLAUDE.md
+│   ├── hooks/
+│   │   └── lint.sh
+│   └── skills/
+│       └── workflow.md
+│
+├── .claude/                       # GENERATED (portable, self-contained)
+│   ├── settings.json
+│   ├── CLAUDE.md                  # Copied
+│   ├── hooks/
+│   │   └── lint.sh                # Copied
+│   └── skills/
+│       └── workflow/
+│           └── SKILL.md           # Copied
+│
+└── .mcp.json                      # GENERATED
+```
+
+## Development
+
+```bash
+npm install
+npm run build
+npm run dev                        # Watch mode
+```
