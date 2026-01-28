@@ -54,10 +54,10 @@ log_event() {
     fi
 
     local handler=$(echo "$config" | jq -r '.logging.handler // ""')
-    if [[ -n "$handler" && -x "$CLAUDE_DIR/$handler" ]]; then
+    if [[ -n "$handler" && -x "$SCRIPT_DIR/$handler" ]]; then
         # Pass log info to handler
         echo "{\"event\": \"$hook_event\", \"tool\": \"$tool_name\", \"outcome\": \"$outcome\", \"rule\": \"$rule_name\"}" | \
-            "$CLAUDE_DIR/$handler"
+            "$SCRIPT_DIR/$handler"
     fi
 }
 
@@ -112,7 +112,7 @@ run_validator() {
         return 0
     fi
 
-    local validator_path="$CLAUDE_DIR/$validator"
+    local validator_path="$SCRIPT_DIR/$validator"
     if [[ ! -x "$validator_path" ]]; then
         echo "Warning: Validator not found or not executable: $validator_path" >&2
         return 0
