@@ -59,22 +59,35 @@ export function generate(targetDir: string): string {
     output.push('  sop.json');
   }
 
-  // Generate settings.json
-  const settings = {
-    hooks: {
-      PreToolUse: [
-        {
-          matcher: "*",
-          hooks: [
-            {
-              type: "command",
-              command: "$CLAUDE_PROJECT_DIR/.claude/hooks/engine.sh"
-            }
-          ]
-        }
-      ]
-    }
+  // Generate settings.json with all hook events
+  const allEvents = [
+    "PreToolUse",
+    "PostToolUse",
+    "PostToolUseFailure",
+    "UserPromptSubmit",
+    "Stop",
+    "SessionStart",
+    "SessionEnd",
+    "SubagentStart",
+    "SubagentStop",
+    "PreCompact",
+    "Notification"
+  ];
+
+  const hookConfig = {
+    matcher: "*",
+    hooks: [
+      {
+        type: "command",
+        command: "$CLAUDE_PROJECT_DIR/.claude/hooks/engine.sh"
+      }
+    ]
   };
+
+  const settings: { hooks: Record<string, typeof hookConfig[]> } = { hooks: {} };
+  for (const event of allEvents) {
+    settings.hooks[event] = [hookConfig];
+  }
   writeFileSync(join(claudeDir, 'settings.json'), JSON.stringify(settings, null, 2));
   output.push('  settings.json');
 

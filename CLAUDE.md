@@ -86,6 +86,52 @@ dev-sop-engine/                    # This repo
 }
 ```
 
+## Claude Code Hook Events
+
+| Hook | When it fires | Matcher support |
+|------|---------------|-----------------|
+| `PreToolUse` | Before any tool runs | Yes |
+| `PostToolUse` | After tool succeeds | Yes |
+| `PostToolUseFailure` | After tool fails | Yes |
+| `UserPromptSubmit` | User sends a message | No |
+| `Stop` | Claude finishes responding | No |
+| `SessionStart` | Session begins | No |
+| `SessionEnd` | Session terminates | No |
+| `SubagentStart` | Task agent spawns | No |
+| `SubagentStop` | Task agent finishes | No |
+| `PreCompact` | Before context compaction | No |
+| `Notification` | Status messages | No |
+
+### Hook Input/Output
+
+Hooks receive JSON via stdin:
+
+```json
+{
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": { "file_path": "/path/to/file", "content": "..." },
+  "cwd": "/current/working/directory"
+}
+```
+
+Exit codes:
+- `0` - Success, allow action
+- `2` - Block action, show stderr to Claude
+- Other - Non-blocking error, continue
+
+### Tool Names for Matchers
+
+Common tools to match:
+- `Write`, `Edit`, `Read` - File operations
+- `Bash` - Shell commands
+- `Glob`, `Grep` - Search
+- `Task` - Subagent tasks
+- `WebFetch`, `WebSearch` - Web access
+- `mcp__<server>__<tool>` - MCP tools
+
+Matcher syntax: `"Write|Edit"` (regex), `"Bash"` (exact), `"*"` (all)
+
 ## Source vs Generated
 
 ```
