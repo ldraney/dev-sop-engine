@@ -1,15 +1,18 @@
 # dev-sop-engine
 
-CLI that generates `.claude/` and `.mcp.json` from `sop.json`.
+CLI and MCP server that generates `.claude/` and `.mcp.json` from `sop.json`.
 
 ## What This Does
 
-Users define their Claude configuration in `sop.json`. This tool generates the complete `.claude/` directory structure.
+Users define their Claude Code configuration in `sop.json`. This tool generates the complete `.claude/` directory structure and `.mcp.json`.
 
 ```bash
-npx dev-sop-engine init        # Create starter sop.json + sop/ scaffold
 npx dev-sop-engine .           # Generate .claude/ and .mcp.json from sop.json
 ```
+
+**Not yet implemented:**
+- `npx dev-sop-engine init` — scaffold starter sop.json + sop/ (planned)
+- `npx dev-sop-engine validate` — validate sop.json (planned)
 
 ## Architecture
 
@@ -18,22 +21,27 @@ dev-sop-engine/                    # This repo
 ├── CLAUDE.md
 ├── package.json
 ├── src/
-│   ├── index.ts                   # CLI entry
-│   ├── generator/
-│   │   ├── index.ts               # Main generate logic
-│   │   ├── settings.ts            # Generates settings.json
-│   │   ├── skills.ts              # Generates skills/
-│   │   ├── agents.ts              # Generates agents/
-│   │   ├── hooks.ts               # Copies hooks
-│   │   └── mcp.ts                 # Generates .mcp.json
-│   └── schema/
-│       └── sop.schema.json        # JSON Schema for validation
+│   ├── index.ts                   # CLI entry point
+│   ├── generator.ts               # All generation logic (~280 lines)
+│   └── mcp-server.ts              # MCP server mode (~85 lines)
 │
-├── sop.json                       # Dogfood: our own config
-├── sop/                           # Dogfood: our source files
-│   └── ...
+├── sop/                           # Dogfood: our own config
+│   ├── sop.json                   # Our sop.json
+│   ├── validators/                # Hook validator scripts
+│   ├── loggers/                   # Hook logging scripts
+│   ├── skills/                    # Skill content files
+│   ├── agents/                    # Agent prompt files
+│   └── hooks/                     # Hook entry point (engine.sh)
 │
-└── .claude/                       # Generated output (dogfood)
+├── .claude/                       # Generated output (dogfood)
+│   ├── settings.json
+│   ├── hooks/
+│   ├── skills/
+│   └── agents/
+│
+├── .mcp.json                      # Generated MCP config
+│
+└── docs/                          # GitHub Pages site
 ```
 
 ## sop.json Schema
@@ -149,25 +157,39 @@ Matcher syntax: `"Write|Edit"` (regex), `"Bash"` (exact), `"*"` (all)
 
 ```
 project/
-├── sop.json                       # Source of truth
-├── sop/                           # Your source files
-│   ├── CLAUDE.md
-│   ├── hooks/
-│   │   └── lint.sh
-│   └── skills/
-│       └── workflow.md
+├── sop/                           # Source of truth (edit these)
+│   ├── sop.json                   # Configuration
+│   ├── validators/                # Rule scripts
+│   ├── loggers/                   # Log handler scripts
+│   ├── hooks/                     # Hook entry point
+│   ├── skills/                    # Skill markdown files
+│   └── agents/                    # Agent prompt files
 │
 ├── .claude/                       # GENERATED (portable, self-contained)
 │   ├── settings.json
-│   ├── CLAUDE.md                  # Copied
+│   ├── sop.json                   # Copied for runtime reference
 │   ├── hooks/
-│   │   └── lint.sh                # Copied
-│   └── skills/
-│       └── workflow/
-│           └── SKILL.md           # Copied
+│   │   ├── engine.sh              # Hook router
+│   │   ├── validators/            # Copied
+│   │   └── loggers/               # Copied
+│   ├── skills/
+│   │   └── <name>/SKILL.md        # Copied
+│   └── agents/
+│       └── <name>.md              # With YAML frontmatter
 │
-└── .mcp.json                      # GENERATED
+└── .mcp.json                      # GENERATED (merged with manual entries)
 ```
+
+## MCP Server Mode
+
+The engine also runs as an MCP server, exposing `sop_generate` as a tool.
+This means any Claude Code session can generate `.claude/` for a target directory.
+
+## Current Status
+
+**Implemented:** Generator (rules, logging, skills, agents, MCP merge), CLI, MCP server, dogfooding.
+
+**Not yet implemented:** `init` command, `validate` command, JSON Schema file, tests, CI, npm publishing.
 
 ## Development
 
