@@ -66,6 +66,10 @@
     "dev-philosophy": {
       "description": "Reviews work for philosophy compliance",
       "prompt_file": "./agents/dev-philosophy.md"
+    },
+    "sop-expert": {
+      "description": "Helps configure dev-sop-engine: skills, agents, MCP servers, rules, and hooks",
+      "prompt_file": "./agents/sop-expert.md"
     }
   }
 }
